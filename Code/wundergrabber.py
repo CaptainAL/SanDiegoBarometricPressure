@@ -47,6 +47,38 @@ if datagrab == True:
     frame = frame.applymap(lambda x: np.nan if x=='-9999' else x)
     datafile =  frame.to_csv('C:/Users/Alex/Documents/GitHub/SanDiegoBarometricPressure/Data/Data-'+s+'.csv')
     
+baro = pd.DataFrame.from_csv('C:/Users/Alex/Documents/GitHub/SanDiegoBarometricPressure/Data/Data-'+s+'.csv')
+baro['kPa'] = baro['Sea Level PressureIn'] * 3.3863881579
+
+   
+XL= pd.ExcelFile('C:/Users/Alex/Documents/GitHub/SanDiegoBarometricPressure/Data/PT_and_baro_data.xlsx')
+EDC20 = XL.parse('EDC20',header=13,parse_cols='A,B,D',parse_dates=[['Date','Time']],index_col=['Date_Time'])
+EDC20 = EDC20.resample('15Min',how='mean')
+EDC20['baropressure'] = baro['kPa'].resample('15Min',how='mean')
+EDC20['stage_cm'] = (EDC20['LEVEL']-EDC20['baropressure']) *.102*100.0
+EDC20['stage_ft'] = EDC20['stage_cm']/2.54/12
+EDC20_daily = EDC20['stage_ft'].resample('1D',how='mean')
+EDC20_daily.to_csv('C:/Users/Alex/Documents/GitHub/SanDiegoBarometricPressure/Data/EDC20 daily mean ft.csv')
+
+EDC50 = XL.parse('EDC50',header=13,parse_cols='A,B,D',parse_dates=[['Date','Time']],index_col=['Date_Time'])
+EDC50 = EDC50.resample('15Min',how='mean')
+EDC50['baropressure'] = baro['kPa'].resample('15Min',how='mean')
+EDC50['stage_cm'] = (EDC50['LEVEL']-EDC50['baropressure']) *.102*100.0
+EDC50['stage_ft'] = EDC50['stage_cm']/2.54/12
+EDC50_daily = EDC50['stage_ft'].resample('1D',how='mean')
+EDC50_daily.to_csv('C:/Users/Alex/Documents/GitHub/SanDiegoBarometricPressure/Data/EDC50 daily mean ft.csv')
+
+field_measurements_EDC20 = XL.parse('Field_measurements',parse_dates=['Date'],index_col=['Date'])
+field_measurements_EDC20['EDC20_daily_stage_ft'] = EDC20_daily
+field_measurements_EDC20['Field-PT-difference'] = field_measurements_EDC20['Depth (ft)'] -field_measurements_EDC20['EDC20_daily_stage_ft']
+field_measurements_EDC20.to_csv('C:/Users/Alex/Documents/GitHub/SanDiegoBarometricPressure/Data/EDC20 field vs PT.csv')
+
+field_measurements_EDC50 = XL.parse('Field_measurements',parse_dates=['Date'],index_col=['Date'])
+field_measurements_EDC50['EDC50_daily_stage_ft'] = EDC50_daily
+field_measurements_EDC50['Field-PT-difference'] = field_measurements_EDC50['Depth (ft)'] -field_measurements_EDC50['EDC50_daily_stage_ft']
+field_measurements_EDC50.to_csv('C:/Users/Alex/Documents/GitHub/SanDiegoBarometricPressure/Data/EDC50 field vs PT.csv')
+
+
 #### Append all
 ##files = os.listdir('C:/Users/Alex/Desktop/samoa/WATERSHED_ANALYSIS/BarometricData/NSTP6/')
 ##alldata = open('C:/Users/Alex/Desktop/samoa/WATERSHED_ANALYSIS/BarometricData/NSTP6/'+'2013.txt','w')
