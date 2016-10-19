@@ -16,7 +16,7 @@ now = datetime.datetime.now()
 if datagrab == True:
     print 'Grabbing data...'
     s = 'KCRQ' ##stations needed
-    daterange = date_range('20140101 00:00:00',now,freq='D')
+    daterange = date_range('20161017 00:00:00',now,freq='D')
     print '...from date range: '+str(daterange[0])+' to '+str(daterange[-1])
     columns = ['TimePST','TemperatureF','Dew PointF','Humidity','Sea Level PressureIn','VisibilityMPH','Wind Direction','Wind SpeedMPH','Gust SpeedMPH','PrecipitationIn','Events','Conditions','WindDirDegrees','DateUTC']
     datalist = [] ## write header columns in empty DataFrame
